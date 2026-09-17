@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supplier Trust Network - Orbit Gallery</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
+    
+    /* Orbit Canvas Background */
+    #orbit-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Headline Overlay inside 3D Orbit */
+    .hero-title {
+      position: relative;
+      z-index: 2;
+      margin-top: 40px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+    }
+
+    /* Glassmorphism Dashboard Container */
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 90%;
+      max-width: 720px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      margin-bottom: 50px;
+    }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; text-align: center; }
+    .stat-value { font-size: 1.4rem; font-weight: 700; color: #f8fafc; }
+    .stat-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+
+    .form-group { display: flex; gap: 8px; margin-bottom: 20px; }
+    input, select { flex: 1; padding: 10px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; }
+    input:focus, select:focus { outline: none; border-color: #38bdf8; }
+    
+    button { background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+    button:hover { background: #0369a1; transform: translateY(-1px); }
+
+    .controls { display: flex; gap: 8px; margin-bottom: 16px; }
+    
+    .supplier-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .info { display: flex; flex-direction: column; gap: 4px; }
+    .actions { display: flex; gap: 10px; align-items: center; }
+    .trust-pill { background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-weight: 700; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge { cursor: pointer; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; border: none; }
+    .verified { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .unverified { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-delete:hover { background: #dc2626; }
+  </style>
+
+  <!-- Three.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+  <!-- WebGL Orbit Gallery Canvas -->
+  <canvas id="orbit-canvas"></canvas>
+
+  <h1 class="hero-title">Supplier Trust Network</h1>
+
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">TOTAL SUPPLIERS</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-verified">0</div>
+        <div class="stat-label">VERIFIED</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-avg-trust">0%</div>
+        <div class="stat-label">AVG TRUST SCORE</div>
+      </div>
+    </div>
+
+    <form id="supplier-form" class="form-group">
+      <input type="text" id="name-input" placeholder="Supplier Name" required />
+      <input type="text" id="location-input" placeholder="Location" required />
+      <input type="number" id="rating-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" required />
+      <button type="submit">Add Supplier</button>
+    </form>
+
+    <div class="controls">
+      <input type="text" id="search-input" placeholder="Search suppliers..." oninput="renderSuppliers()" />
+      <select id="filter-select" onchange="renderSuppliers()">
+        <option value="all">All Statuses</option>
+        <option value="verified">Verified Only</option>
+        <option value="pending">Pending Only</option>
+      </select>
+      <select id="sort-select" onchange="renderSuppliers()">
+        <option value="trust-desc">Trust Score (High to Low)</option>
+        <option value="trust-asc">Trust Score (Low to High)</option>
+      </select>
+    </div>
+
+    <div id="supplier-list"></div>
+  </div>
+
+  <script>
+    // --- Gallery Heading 3D Orbit Implementation ---
+    const canvas = document.getElementById('orbit-canvas');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.position.set(0, 5, 22);
+
+    const orbitGroup = new THREE.Group();
+    scene.add(orbitGroup);
+
+    // Create 12 orbiting cards with colored procedural shaders
+    const numPlates = 12;
+    const radius = 10;
+    const colors = [0xf97316, 0x06b6d4, 0x84cc16, 0xeab308, 0xec4899, 0x3b82f6, 0x10b981, 0x8b5cf6];
+
+    for (let i = 0; i < numPlates; i++) {
+      const angle = (i / numPlates) * Math.PI * 2;
+      const geometry = new THREE.BoxGeometry(2.4, 1.8, 0.1);
+      
+      const material = new THREE.MeshPhongMaterial({
+        color: colors[i % colors.length],
+        shininess: 80,
+        specular: 0xffffff
+      });
+
+      const plate = new THREE.Mesh(geometry, material);
+      plate.position.x = Math.cos(angle) * radius;
+      plate.position.z = Math.sin(angle) * radius;
+      plate.rotation.y = -angle + Math.PI / 2;
+      
+      orbitGroup.add(plate);
+    }
+
+    // Lighting
+    const light = new THREE.DirectionalLight(0xffffff, 1.2);
+    light.position.set(10, 20, 15);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+
+    // Tilt orbit ring
+    orbitGroup.rotation.x = 0.35;
+    orbitGroup.rotation.z = -0.15;
+
+    function animateOrbit() {
+      requestAnimationFrame(animateOrbit);
+      orbitGroup.rotation.y += 0.003;
+      renderer.render(scene, camera);
+    }
+    animateOrbit();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- Backend Integration ---
+    let rawSuppliers = [];
+
+    async function loadStats() {
+      const res = await fetch('/api/stats');
+      const stats = await res.json();
+      document.getElementById('stat-total').innerText = stats.total;
+      document.getElementById('stat-verified').innerText = stats.verifiedCount;
+      document.getElementById('stat-avg-trust').innerText = stats.avgTrust + '%';
+    }
+
+    async function loadSuppliers() {
+      const res = await fetch('/api/suppliers');
+      rawSuppliers = await res.json();
+      renderSuppliers();
+      loadStats();
+    }
+
+    function renderSuppliers() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const filterValue = document.getElementById('filter-select').value;
+      const sortValue = document.getElementById('sort-select').value;
+
+      let filtered = rawSuppliers.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(searchTerm) || s.location.toLowerCase().includes(searchTerm);
+        const matchesFilter = filterValue === 'all' 
+          ? true 
+          : filterValue === 'verified' ? s.verified : !s.verified;
+        return matchesSearch && matchesFilter;
+      });
+
+      filtered.sort((a, b) => {
+        if (sortValue === 'trust-desc') return b.trustScore - a.trustScore;
+        if (sortValue === 'trust-asc') return a.trustScore - b.trustScore;
+      });
+
+      const supplierList = document.getElementById('supplier-list');
+      supplierList.innerHTML = '';
+
+      filtered.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'supplier-card';
+        div.innerHTML = `
+          <div class="info">
+            <strong>${s.name} (${s.location})</strong>
+            <div style="font-size:0.85rem; color:#94a3b8;">Rating: ${s.rating} ★</div>
+          </div>
+          <div class="actions">
+            <div class="trust-pill">Trust: ${s.trustScore}%</div>
+            <button onclick="toggleVerify(${s.id})" class="badge ${s.verified ? 'verified' : 'unverified'}">
+              ${s.verified ? 'Verified ✓' : 'Pending ✗'}
+            </button>
+            <button onclick="deleteSupplier(${s.id})" class="btn-delete">Delete</button>
+          </div>
+        `;
+        supplierList.appendChild(div);
+      });
+    }
+
+    document.getElementById('supplier-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name-input').value;
+      const location = document.getElementById('location-input').value;
+      const rating = document.getElementById('rating-input').value;
+
+      await fetch('/api/suppliers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, location, rating })
+      });
+
+      document.getElementById('name-input').value = '';
+      document.getElementById('location-input').value = '';
+      document.getElementById('rating-input').value = '';
+      loadSuppliers();
+    });
+
+    async function toggleVerify(id) {
+      await fetch(`/api/suppliers/${id}/toggle`, { method: 'PATCH' });
+      loadSuppliers();
+    }
+
+    async function deleteSupplier(id) {
+      await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
+      loadSuppliers();
+    }
+
+    loadSuppliers();
+  </script>
+</body>
+</html>
