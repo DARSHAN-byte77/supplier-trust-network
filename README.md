@@ -1,22 +1,24 @@
 # Supplier Trust Network
 
-A full-stack application for tracking, verifying, and scoring supply chain partners in real time.
+A full-stack application for tracking, verifying, and scoring supply chain partners in real time with an interactive WebGL 3D interface.
 
-## Features
-- **Dynamic Trust Score Engine**: Automatically calculates a trust rating (0–100%) based on partner rating and verification status.
-- **RESTful API**: Node.js & Express backend handling complete CRUD operations.
-- **Persistent Data**: Powered by an SQLite relational database.
-- **Interactive Dashboard**: Filter by verification status, search locations/names, and sort dynamically.
-- **Real-Time Analytics**: Visual metric headers tracking total network volume, verification count, and average trust score.
+## 🚀 Key Features
 
-## Tech Stack
-- **Backend**: Node.js, Express.js
-- **Database**: SQLite3
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript (Fetch API)
+* **Dynamic Trust Score Engine**: Calculates composite trust ratings (0–100%) based on baseline supplier ratings, OTIF (On-Time In-Full) delivery history, and ISO/ESG compliance certifications.
+* **RESTful Express API**: Node.js & Express backend handling complete CRUD operations and network metrics aggregation.
+* **Persistent SQLite Database**: Structured relational storage for suppliers, performance metrics, and verification records.
+* **Interactive 3D WebGL Visualization**: Three.js dynamic orbital component rendering animated node cards and network status.
+* **Web3 & Audit Trail Concept**: Integrates simulated cryptographic transaction hashes and MetaMask wallet authentication support.
 
-## Getting Started
+## 🛠️ Tech Stack
 
-1. Clone the repository:
-   ```bash
-   git clone <your-repo-url>
-   cd "supplier trust network"
+* **Frontend**: HTML5, CSS3, JavaScript (ES6+), Three.js (WebGL)
+* **Backend**: Node.js, Express.js
+* **Database**: SQLite3
+* **Version Control**: Git, GitHub
+
+## 🚦 Getting Started
+
+### 1. Installation
+```bash
+npm install
