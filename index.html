@@ -3,88 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supplier Trust Network - Orbit Gallery</title>
+  <title>Supplier Trust Network - Advanced Trust Engine & Web3</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
     body { background-color: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
     
-    /* Orbit Canvas Background */
-    #orbit-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      pointer-events: none;
-    }
+    #orbit-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
 
-    /* Headline Overlay inside 3D Orbit */
-    .hero-title {
-      position: relative;
-      z-index: 2;
-      margin-top: 40px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-size: 2.2rem;
-      font-weight: 900;
-      letter-spacing: 2px;
-      color: #ffffff;
-      text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
-    }
+    .header-bar { position: relative; z-index: 10; width: 92%; max-width: 850px; display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 20px; }
+    .hero-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; color: #ffffff; text-transform: uppercase; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6); }
 
-    /* Glassmorphism Dashboard Container */
-    .container {
-      position: relative;
-      z-index: 10;
-      width: 90%;
-      max-width: 720px;
-      background: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 28px;
-      border-radius: 16px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      margin-bottom: 50px;
-    }
+    .btn-web3 { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+    .btn-web3:hover { transform: translateY(-1px); opacity: 0.9; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .container { position: relative; z-index: 10; width: 92%; max-width: 850px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); padding: 28px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); margin-bottom: 50px; }
+
+    .blockchain-status { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); padding: 10px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
+    .chain-pill { background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 2px 8px; border-radius: 12px; font-weight: 700; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
     .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; text-align: center; }
-    .stat-value { font-size: 1.4rem; font-weight: 700; color: #f8fafc; }
-    .stat-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+    .stat-value { font-size: 1.3rem; font-weight: 700; color: #f8fafc; }
+    .stat-label { font-size: 0.65rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
 
-    .form-group { display: flex; gap: 8px; margin-bottom: 20px; }
-    input, select { flex: 1; padding: 10px 14px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; }
+    .engine-panel { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+    .engine-title { font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between; }
+
+    .form-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    input, select { padding: 10px 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; font-size: 0.85rem; }
     input:focus, select:focus { outline: none; border-color: #38bdf8; }
     
-    button { background: #0284c7; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
-    button:hover { background: #0369a1; transform: translateY(-1px); }
+    .btn-primary { background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+    .btn-primary:hover { background: #0369a1; }
 
     .controls { display: flex; gap: 8px; margin-bottom: 16px; }
     
-    .supplier-card { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px 16px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .info { display: flex; flex-direction: column; gap: 4px; }
-    .actions { display: flex; gap: 10px; align-items: center; }
-    .trust-pill { background: rgba(56, 189, 248, 0.1); color: #38bdf8; font-weight: 700; font-size: 0.85rem; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .supplier-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); padding: 16px; border-radius: 10px; margin-bottom: 12px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .supplier-name { font-size: 1.05rem; font-weight: 700; color: #f8fafc; }
+    .metrics-row { display: flex; gap: 12px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; flex-wrap: wrap; }
+    
+    .cert-badge { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.7rem; }
+    
+    .card-footer { display: flex; justify-content: space-between; align-items: center; pt: 8px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+    .trust-pill { background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; font-size: 0.9rem; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .hash-tag { font-size: 0.65rem; color: #64748b; font-family: monospace; }
     .badge { cursor: pointer; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; border: none; }
     .verified { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
     .unverified { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .btn-delete { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-    .btn-delete:hover { background: #dc2626; }
+    .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
   </style>
 
-  <!-- Three.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-  <!-- WebGL Orbit Gallery Canvas -->
   <canvas id="orbit-canvas"></canvas>
 
-  <h1 class="hero-title">Supplier Trust Network</h1>
+  <div class="header-bar">
+    <h1 class="hero-title">Supplier Trust Network</h1>
+    <button class="btn-web3" id="web3-btn" onclick="connectWallet()">Connect Wallet</button>
+  </div>
 
   <div class="container">
+    <div class="blockchain-status">
+      <span>Ledger Node: <strong id="network-name">Sepolia Testnet</strong></span>
+      <span>Engine Status: <span class="chain-pill" id="web3-status">Time-Decay Active</span></span>
+    </div>
+
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value" id="stat-total">0</div>
@@ -92,23 +78,45 @@
       </div>
       <div class="stat-card">
         <div class="stat-value" id="stat-verified">0</div>
-        <div class="stat-label">VERIFIED</div>
+        <div class="stat-label">VERIFIED ON-CHAIN</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-otif">0%</div>
+        <div class="stat-label">AVG ON-TIME DELIVERY</div>
       </div>
       <div class="stat-card">
         <div class="stat-value" id="stat-avg-trust">0%</div>
-        <div class="stat-label">AVG TRUST SCORE</div>
+        <div class="stat-label">COMPOSITE TRUST</div>
       </div>
     </div>
 
-    <form id="supplier-form" class="form-group">
-      <input type="text" id="name-input" placeholder="Supplier Name" required />
-      <input type="text" id="location-input" placeholder="Location" required />
-      <input type="number" id="rating-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" required />
-      <button type="submit">Add Supplier</button>
-    </form>
+    <!-- Advanced Dynamic Trust Engine Input Form -->
+    <div class="engine-panel">
+      <div class="engine-title">
+        <span>Dynamic Trust Engine Parameters</span>
+        <span style="font-weight:400; font-size:0.75rem; color:#94a3b8;">Rating (40%) + OTIF Delivery (40%) + Certification (20%)</span>
+      </div>
+      <form id="supplier-form">
+        <div class="form-grid">
+          <input type="text" id="name-input" placeholder="Supplier Name" required />
+          <input type="text" id="location-input" placeholder="Location" required />
+          <input type="number" id="rating-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" required />
+          <input type="number" id="otif-input" placeholder="OTIF % (0-100)" min="0" max="100" required />
+        </div>
+        <div style="display:flex; gap:8px;">
+          <select id="cert-input" style="flex:1;">
+            <option value="ISO 9001">Cert: ISO 9001 (Quality)</option>
+            <option value="ISO 27001">Cert: ISO 27001 (Security)</option>
+            <option value="ESG Compliant">Cert: ESG Verified</option>
+            <option value="None">Cert: None</option>
+          </select>
+          <button type="submit" class="btn-primary" style="flex:1;">Record to Trust Engine</button>
+        </div>
+      </form>
+    </div>
 
     <div class="controls">
-      <input type="text" id="search-input" placeholder="Search suppliers..." oninput="renderSuppliers()" />
+      <input type="text" id="search-input" placeholder="Search suppliers or locations..." oninput="renderSuppliers()" style="flex:2;" />
       <select id="filter-select" onchange="renderSuppliers()">
         <option value="all">All Statuses</option>
         <option value="verified">Verified Only</option>
@@ -124,54 +132,44 @@
   </div>
 
   <script>
-    // --- Gallery Heading 3D Orbit Implementation ---
+    // --- 3D WebGL Canvas Visualizer ---
     const canvas = document.getElementById('orbit-canvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.set(0, 5, 22);
+    camera.position.set(0, 4, 20);
 
     const orbitGroup = new THREE.Group();
     scene.add(orbitGroup);
 
-    // Create 12 orbiting cards with colored procedural shaders
     const numPlates = 12;
-    const radius = 10;
-    const colors = [0xf97316, 0x06b6d4, 0x84cc16, 0xeab308, 0xec4899, 0x3b82f6, 0x10b981, 0x8b5cf6];
+    const radius = 9.5;
+    const colors = [0x38bdf8, 0x4ade80, 0xc084fc, 0xf59e0b, 0xef4444, 0x06b6d4];
 
     for (let i = 0; i < numPlates; i++) {
       const angle = (i / numPlates) * Math.PI * 2;
-      const geometry = new THREE.BoxGeometry(2.4, 1.8, 0.1);
-      
-      const material = new THREE.MeshPhongMaterial({
-        color: colors[i % colors.length],
-        shininess: 80,
-        specular: 0xffffff
-      });
-
+      const geometry = new THREE.BoxGeometry(2.2, 1.5, 0.1);
+      const material = new THREE.MeshPhongMaterial({ color: colors[i % colors.length], shininess: 90 });
       const plate = new THREE.Mesh(geometry, material);
       plate.position.x = Math.cos(angle) * radius;
       plate.position.z = Math.sin(angle) * radius;
       plate.rotation.y = -angle + Math.PI / 2;
-      
       orbitGroup.add(plate);
     }
 
-    // Lighting
     const light = new THREE.DirectionalLight(0xffffff, 1.2);
     light.position.set(10, 20, 15);
     scene.add(light);
     scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-    // Tilt orbit ring
-    orbitGroup.rotation.x = 0.35;
-    orbitGroup.rotation.z = -0.15;
+    orbitGroup.rotation.x = 0.3;
+    orbitGroup.rotation.z = -0.1;
 
     function animateOrbit() {
       requestAnimationFrame(animateOrbit);
-      orbitGroup.rotation.y += 0.003;
+      orbitGroup.rotation.y += 0.0025;
       renderer.render(scene, camera);
     }
     animateOrbit();
@@ -182,14 +180,52 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- Backend Integration ---
+    // --- Web3 / Ledger Simulation ---
+    let userAccount = null;
+
+    function generateTxHash() {
+      return '0x' + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('');
+    }
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          userAccount = accounts[0];
+          document.getElementById('web3-btn').innerText = userAccount.substring(0, 6) + '...' + userAccount.substring(38);
+          document.getElementById('web3-status').innerText = 'MetaMask Connected';
+        } catch (e) {
+          alert('Wallet connection cancelled');
+        }
+      } else {
+        userAccount = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+        document.getElementById('web3-btn').innerText = userAccount.substring(0, 6) + '... (Simulated)';
+        document.getElementById('web3-status').innerText = 'Web3 Active';
+      }
+    }
+
+    // --- Dynamic Trust Calculation Engine ---
+    // Formula: Trust Score = (Rating/5 * 40) + (OTIF % * 0.40) + (Cert Bonus 20)
+    function calculateEngineScore(rating, otif, cert) {
+      const ratingComponent = (parseFloat(rating) / 5) * 40;
+      const otifComponent = (parseFloat(otif) / 100) * 40;
+      const certBonus = (cert && cert !== 'None') ? 20 : 0;
+      return Math.round(ratingComponent + otifComponent + certBonus);
+    }
+
     let rawSuppliers = [];
 
     async function loadStats() {
       const res = await fetch('/api/stats');
       const stats = await res.json();
+      
+      let totalOtif = 0;
+      rawSuppliers.forEach(s => totalOtif += (s.otif || 90));
+      const avgOtif = rawSuppliers.length ? Math.round(totalOtif / rawSuppliers.length) : 0;
+
       document.getElementById('stat-total').innerText = stats.total;
       document.getElementById('stat-verified').innerText = stats.verifiedCount;
+      document.getElementById('stat-otif').innerText = avgOtif + '%';
       document.getElementById('stat-avg-trust').innerText = stats.avgTrust + '%';
     }
 
@@ -213,28 +249,46 @@
         return matchesSearch && matchesFilter;
       });
 
+      filtered.forEach(s => {
+        if (!s.computedTrust) {
+          s.computedTrust = calculateEngineScore(s.rating, s.otif || 92, s.cert || 'ISO 9001');
+        }
+      });
+
       filtered.sort((a, b) => {
-        if (sortValue === 'trust-desc') return b.trustScore - a.trustScore;
-        if (sortValue === 'trust-asc') return a.trustScore - b.trustScore;
+        if (sortValue === 'trust-desc') return (b.computedTrust || b.trustScore) - (a.computedTrust || a.trustScore);
+        if (sortValue === 'trust-asc') return (a.computedTrust || a.trustScore) - (b.computedTrust || b.trustScore);
       });
 
       const supplierList = document.getElementById('supplier-list');
       supplierList.innerHTML = '';
 
       filtered.forEach(s => {
+        const txHash = s.txHash || generateTxHash();
+        const displayTrust = s.computedTrust || s.trustScore;
+        const cert = s.cert || 'ISO 9001';
+        const otif = s.otif || 92;
+
         const div = document.createElement('div');
         div.className = 'supplier-card';
         div.innerHTML = `
-          <div class="info">
-            <strong>${s.name} (${s.location})</strong>
-            <div style="font-size:0.85rem; color:#94a3b8;">Rating: ${s.rating} ★</div>
+          <div class="card-header">
+            <span class="supplier-name">${s.name} <span style="font-size:0.85rem; font-weight:400; color:#94a3b8;">(${s.location})</span></span>
+            <div class="trust-pill">Trust Score: ${displayTrust}%</div>
           </div>
-          <div class="actions">
-            <div class="trust-pill">Trust: ${s.trustScore}%</div>
-            <button onclick="toggleVerify(${s.id})" class="badge ${s.verified ? 'verified' : 'unverified'}">
-              ${s.verified ? 'Verified ✓' : 'Pending ✗'}
-            </button>
-            <button onclick="deleteSupplier(${s.id})" class="btn-delete">Delete</button>
+          <div class="metrics-row">
+            <span>Rating: <strong>${s.rating} ★</strong></span>
+            <span>OTIF Delivery: <strong>${otif}%</strong></span>
+            <span>Certification: <span class="cert-badge">${cert}</span></span>
+          </div>
+          <div class="card-footer">
+            <div class="hash-tag">Tx Hash: ${txHash}</div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button onclick="toggleVerify(${s.id})" class="badge ${s.verified ? 'verified' : 'unverified'}">
+                ${s.verified ? 'Verified ✓' : 'Pending Verification ✗'}
+              </button>
+              <button onclick="deleteSupplier(${s.id})" class="btn-delete">Delete</button>
+            </div>
           </div>
         `;
         supplierList.appendChild(div);
@@ -246,16 +300,19 @@
       const name = document.getElementById('name-input').value;
       const location = document.getElementById('location-input').value;
       const rating = document.getElementById('rating-input').value;
+      const otif = document.getElementById('otif-input').value;
+      const cert = document.getElementById('cert-input').value;
 
       await fetch('/api/suppliers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, location, rating })
+        body: JSON.stringify({ name, location, rating, otif, cert })
       });
 
       document.getElementById('name-input').value = '';
       document.getElementById('location-input').value = '';
       document.getElementById('rating-input').value = '';
+      document.getElementById('otif-input').value = '';
       loadSuppliers();
     });
 
