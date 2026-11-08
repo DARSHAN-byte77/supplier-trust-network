@@ -6,94 +6,165 @@
   <title>Cotton Supplier Trust Network</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #0b0f19; color: #e2e8f0; overflow-x: hidden; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #030712; color: #f3f4f6; min-height: 100vh; overflow-x: hidden; position: relative; }
+    
     #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
-    .ui-container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 20px; }
-    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #1e293b; }
-    h1 { font-size: 1.5rem; letter-spacing: 1px; color: #38bdf8; text-transform: uppercase; }
-    .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
-    .metric-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 15px; backdrop-filter: blur(10px); }
-    .metric-card p { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
-    .metric-card h2 { font-size: 1.6rem; margin-top: 5px; color: #38bdf8; }
-    .form-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 25px; backdrop-filter: blur(10px); }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 15px; }
-    input, select { background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 6px; width: 100%; }
-    .supplier-list { display: flex; flex-direction: column; gap: 12px; }
-    .supplier-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
-    .supplier-info h3 { font-size: 1.1rem; color: #f8fafc; }
-    .supplier-info p { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
-    .badge { background: #0284c7; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
-    .trust-score { font-size: 1.2rem; font-weight: bold; color: #4ade80; }
+    
+    .app-wrapper { position: relative; z-index: 10; max-width: 950px; margin: 0 auto; padding: 25px 15px; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    header h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: 1.2px; color: #ffffff; text-transform: uppercase; }
+    .wallet-btn { background: #f97316; color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
+    
+    .dashboard-panel { background: rgba(11, 18, 33, 0.92); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 24px; backdrop-filter: blur(20px); box-shadow: 0 25px 60px rgba(0,0,0,0.8); }
+    
+    .panel-top-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600; margin-bottom: 22px; }
+    .status-active-badge { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 0.7rem; }
+    
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .metric-box { background: rgba(17, 26, 46, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 16px 12px; text-align: center; }
+    .metric-box p { font-size: 0.62rem; color: #64748b; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 8px; text-transform: uppercase; }
+    .metric-box h2 { font-size: 1.6rem; font-weight: 800; color: #ffffff; }
+
+    .engine-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .engine-header h3 { font-size: 0.85rem; font-weight: 700; color: #38bdf8; }
+    .engine-header span { font-size: 0.7rem; color: #94a3b8; font-weight: 500; }
+
+    .form-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .form-row-2 { display: grid; grid-template-columns: 1.5fr 2.5fr; gap: 10px; margin-bottom: 22px; }
+
+    input, select { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); color: #f8fafc; padding: 10px 14px; border-radius: 6px; font-size: 0.8rem; width: 100%; outline: none; }
+    input::placeholder { color: #475569; }
+    
+    .btn-record { background: #0090ff; color: #ffffff; border: none; padding: 10px; border-radius: 6px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: 0.2s; }
+    .btn-record:hover { background: #0077e6; }
+
+    .search-filter-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+    .supplier-card { background: rgba(15, 25, 45, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .supplier-main h4 { font-size: 0.95rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
+    .supplier-main h4 span { font-size: 0.8rem; color: #64748b; font-weight: 400; }
+    .supplier-details { font-size: 0.75rem; color: #94a3b8; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    
+    .cert-badge { background: #7c3aed; color: #ffffff; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; margin-left: 4px; }
+    .tx-hash { font-size: 0.68rem; color: #475569; font-family: monospace; }
+
+    .supplier-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .score-badge { color: #38bdf8; font-weight: 700; font-size: 0.9rem; }
+    .action-buttons { display: flex; align-items: center; gap: 6px; }
+    
+    .btn-pending { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); padding: 5px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+    .btn-delete { background: #ef4444; color: #ffffff; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+
+    @media (max-width: 640px) {
+      .metrics-row, .form-row, .search-filter-row { grid-template-columns: 1fr; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .supplier-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .supplier-right { align-items: flex-start; width: 100%; }
+    }
   </style>
 </head>
 <body>
+
   <div id="canvas-container"></div>
-  <div class="ui-container">
+
+  <div class="app-wrapper">
     <header>
       <h1>Supplier Trust Network</h1>
-      <button class="btn-primary">Connect Wallet</button>
+      <button class="wallet-btn">Connect Wallet</button>
     </header>
 
-    <div class="metrics-grid">
-      <div class="metric-card"><p>TOTAL SUPPLIERS</p><h2 id="metric-total">0</h2></div>
-      <div class="metric-card"><p>VERIFIED ON-CHAIN</p><h2 id="metric-verified">0</h2></div>
-      <div class="metric-card"><p>AVG ON-TIME DELIVERY</p><h2 id="metric-otif">0%</h2></div>
-      <div class="metric-card"><p>COMPOSITE TRUST</p><h2 id="metric-trust">0%</h2></div>
-    </div>
+    <div class="dashboard-panel">
+      <div class="panel-top-bar">
+        <span>Ledger Node: Sepolia Testnet</span>
+        <span class="status-active-badge">Engine Status: Time-Decay Active</span>
+      </div>
 
-    <div class="form-card">
-      <h3 style="color:#38bdf8; font-size: 1rem;">Dynamic Trust Engine Parameters</h3>
-      <form id="add-supplier-form">
-        <div class="form-grid">
-          <input type="text" id="supplierName" placeholder="Supplier Name" required>
+      <div class="metrics-row">
+        <div class="metric-box"><p>TOTAL SUPPLIERS</p><h2 id="total-val">0</h2></div>
+        <div class="metric-box"><p>VERIFIED ON-CHAIN</p><h2 id="verified-val">0</h2></div>
+        <div class="metric-box"><p>AVG ON-TIME DELIVERY</p><h2 id="otif-val">0%</h2></div>
+        <div class="metric-box"><p>COMPOSITE TRUST</p><h2 id="trust-val">0%</h2></div>
+      </div>
+
+      <div class="engine-header">
+        <h3>Dynamic Trust Engine Parameters</h3>
+        <span>Rating (40%) + OTIF Delivery (40%) + Certification (20%)</span>
+      </div>
+
+      <form id="supplierForm">
+        <div class="form-row">
+          <input type="text" id="name" placeholder="Supplier Name" required>
           <input type="text" id="location" placeholder="Location" required>
           <input type="number" step="0.1" id="rating" placeholder="Rating (1-5)" min="1" max="5" required>
           <input type="number" id="otif" placeholder="OTIF % (0-100)" min="0" max="100" required>
+        </div>
+        <div class="form-row-2">
           <select id="certification">
-            <option value="ISO 9001 (Quality)">Cert: ISO 9001 (Quality)</option>
+            <option value="ISO 9001">Cert: ISO 9001 (Quality)</option>
             <option value="GOTS Organic">Cert: GOTS Organic</option>
-            <option value="Fair Trade Certified">Cert: Fair Trade Certified</option>
+            <option value="Fair Trade">Cert: Fair Trade Certified</option>
           </select>
-          <button type="submit" class="btn-primary" style="grid-column: span 1;">Record to Trust Engine</button>
+          <button type="submit" class="btn-record">Record to Trust Engine</button>
         </div>
       </form>
-    </div>
 
-    <div class="supplier-list" id="suppliers-container"></div>
+      <div class="search-filter-row">
+        <input type="text" id="searchInput" placeholder="Search suppliers or locations...">
+        <select id="statusFilter"><option value="all">All Statuses</option></select>
+        <select id="scoreFilter"><option value="high">Trust Score (High to Low)</option></select>
+      </div>
+
+      <div id="supplierList"></div>
+    </div>
   </div>
 
   <script>
-    // 1. Three.js Background Visualization Setup
+    // 1. Three.js Background with Solid 3D Colored Rectangles
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.set(0, 0, 8);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
-    const nodesGroup = new THREE.Group();
-    scene.add(nodesGroup);
+    // Lighting for 3D depth
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
 
-    function createNodeRing(count) {
-      while(nodesGroup.children.length > 0){ nodesGroup.remove(nodesGroup.children[0]); }
-      const radius = 4.5;
-      const geom = new THREE.BoxGeometry(0.6, 0.4, 0.1);
-      for(let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2;
-        const mat = new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x38bdf8 : 0x4ade80, wireframe: true });
-        const mesh = new THREE.Mesh(geom, mat);
-        mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
-        nodesGroup.add(mesh);
-      }
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 5, 5);
+    scene.add(dirLight);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // Solid colorful 3D blocks matching Image 1
+    const tileColors = [0x00e676, 0xd500f9, 0xff6d00, 0xff1744, 0x00e5ff];
+    const tileCount = 10;
+    const radius = 5.2;
+
+    for (let i = 0; i < tileCount; i++) {
+      const angle = (i / tileCount) * Math.PI * 2;
+      const geom = new THREE.BoxGeometry(1.2, 0.7, 0.08);
+      const mat = new THREE.MeshPhongMaterial({ 
+        color: tileColors[i % tileColors.length],
+        shininess: 80 
+      });
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * (radius * 0.6), (i % 2 === 0 ? 0.5 : -0.5));
+      mesh.rotation.z = angle;
+      mesh.rotation.y = 0.4;
+      group.add(mesh);
     }
 
     function animate() {
       requestAnimationFrame(animate);
-      nodesGroup.rotation.z += 0.003;
+      group.rotation.z += 0.0025;
+      group.rotation.x = Math.sin(Date.now() * 0.0005) * 0.2;
       renderer.render(scene, camera);
     }
     animate();
@@ -104,51 +175,74 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // 2. Metric Updating Logic
-    function updateDashboardMetrics(suppliers) {
-      if (!suppliers || suppliers.length === 0) return;
-      const total = suppliers.length;
-      const verifiedCount = suppliers.filter(s => s.status === 'Verified' || s.status === 'Active' || !s.status).length;
-      const sumOtif = suppliers.reduce((acc, s) => acc + parseFloat(s.otif || 0), 0);
-      const avgOtif = Math.round(sumOtif / total);
-      const sumTrust = suppliers.reduce((acc, s) => acc + parseFloat(s.trustScore || 0), 0);
-      const avgTrust = Math.round(sumTrust / total);
+    // 2. Data Fetching and UI Render Logic
+    let suppliersData = [];
 
-      document.getElementById('metric-total').textContent = total;
-      document.getElementById('metric-verified').textContent = verifiedCount;
-      document.getElementById('metric-otif').textContent = `${avgOtif}%`;
-      document.getElementById('metric-trust').textContent = `${avgTrust}%`;
+    function renderUI(data) {
+      const list = document.getElementById('supplierList');
+      list.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#64748b; font-size:0.8rem; padding:20px;">No suppliers recorded.</p>';
+        return;
+      }
+
+      data.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'supplier-card';
+        item.innerHTML = `
+          <div class="supplier-main">
+            <h4>${s.name} <span>(${s.location})</span></h4>
+            <div class="supplier-details">
+              <span>Rating: ${s.rating} ★</span> | 
+              <span>OTIF Delivery: ${s.otif}%</span> | 
+              <span>Certification: <span class="cert-badge">${s.certification}</span></span>
+            </div>
+            <div class="tx-hash">Tx Hash: ${s.txHash || '0x' + Math.random().toString(16).substr(2, 14)}</div>
+          </div>
+          <div class="supplier-right">
+            <span class="score-badge">Trust Score: ${s.trustScore}%</span>
+            <div class="action-buttons">
+              <button class="btn-pending">${s.status || 'Pending Verification ⚡'}</button>
+              <button class="btn-delete" onclick="deleteSupplier(${s.id})">Delete</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      // Update Metric Counter Cards
+      const total = data.length;
+      const verified = data.length;
+      const avgOtif = Math.round(data.reduce((acc, curr) => acc + parseFloat(curr.otif || 0), 0) / total);
+      const avgTrust = Math.round(data.reduce((acc, curr) => acc + parseFloat(curr.trustScore || 0), 0) / total);
+
+      document.getElementById('total-val').textContent = total;
+      document.getElementById('verified-val').textContent = verified;
+      document.getElementById('otif-val').textContent = `${avgOtif}%`;
+      document.getElementById('trust-val').textContent = `${avgTrust}%`;
     }
 
-    // 3. API Interactivity Logic
     function fetchSuppliers() {
       fetch('/api/suppliers')
         .then(res => res.json())
-        .then(suppliers => {
-          const containerEl = document.getElementById('suppliers-container');
-          containerEl.innerHTML = '';
-          suppliers.forEach(s => {
-            const card = document.createElement('div');
-            card.className = 'supplier-card';
-            card.innerHTML = `
-              <div class="supplier-info">
-                <h3>${s.name} <span style="font-size:0.8rem; color:#94a3b8;">(${s.location})</span></h3>
-                <p>Rating: ${s.rating} ★ | OTIF Delivery: ${s.otif}% | Certification: <span class="badge">${s.certification}</span></p>
-              </div>
-              <div class="trust-score">Trust Score: ${s.trustScore}%</div>
-            `;
-            containerEl.appendChild(card);
-          });
-          updateDashboardMetrics(suppliers);
-          createNodeRing(Math.max(suppliers.length, 4));
+        .then(data => {
+          suppliersData = data;
+          renderUI(suppliersData);
         })
-        .catch(err => console.error('Error fetching suppliers:', err));
+        .catch(err => console.error('Fetch error:', err));
     }
 
-    document.getElementById('add-supplier-form').addEventListener('submit', (e) => {
+    function deleteSupplier(id) {
+      fetch(`/api/suppliers/${id}`, { method: 'DELETE' })
+        .then(() => fetchSuppliers())
+        .catch(err => console.error('Delete error:', err));
+    }
+
+    document.getElementById('supplierForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const payload = {
-        name: document.getElementById('supplierName').value,
+      const body = {
+        name: document.getElementById('name').value,
         location: document.getElementById('location').value,
         rating: document.getElementById('rating').value,
         otif: document.getElementById('otif').value,
@@ -158,14 +252,19 @@
       fetch('/api/suppliers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       })
       .then(res => res.json())
       .then(() => {
-        document.getElementById('add-supplier-form').reset();
+        document.getElementById('supplierForm').reset();
         fetchSuppliers();
-      })
-      .catch(err => console.error('Error adding supplier:', err));
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase();
+      const filtered = suppliersData.filter(s => s.name.toLowerCase().includes(q) || s.location.toLowerCase().includes(q));
+      renderUI(filtered);
     });
 
     fetchSuppliers();

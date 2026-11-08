@@ -1,32 +1,29 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 
-// Middleware for parsing JSON & form data, serving static frontend files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
-// SQLite Database Connection
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error connecting to SQLite database:', err.message);
-  } else {
+  if (err) console.error('Database connection error:', err.message);
+  else {
     console.log('Connected to SQLite database.');
     initDatabase();
   }
 });
 
-// Default initial suppliers list
+// Initial seed suppliers matching target layout
 const defaultSuppliers = [
-  { name: 'Apex Cotton Mill', location: 'Gujarat', rating: 4.8, otif: 96, certification: 'ISO 9001 (Quality)', trustScore: 97, status: 'Verified' },
-  { name: 'Deccan Fiber Corp', location: 'Telangana', rating: 4.5, otif: 91, certification: 'GOTS Organic', trustScore: 89, status: 'Verified' },
-  { name: 'Kaveri Spinning Ltd', location: 'Karnataka', rating: 4.2, otif: 88, certification: 'ISO 9001 (Quality)', trustScore: 84, status: 'Verified' },
-  { name: 'Vardhman Textiles', location: 'Punjab', rating: 4.9, otif: 98, certification: 'Fair Trade Certified', trustScore: 98, status: 'Verified' }
+  { name: 'Darshan', location: 'Tumkur', rating: 5.0, otif: 100, certification: 'ISO 9001', trustScore: 100, status: 'Pending Verification ⚡', txHash: '0x843ac74a0bb5288' },
+  { name: 'Vardhman Textiles', location: 'Punjab', rating: 4.9, otif: 98, certification: 'ISO 9001', trustScore: 98, status: 'Pending Verification ⚡', txHash: '0x71b9e29a10fc33d1' },
+  { name: 'Apex Cotton Mill', location: 'Gujarat', rating: 4.8, otif: 96, certification: 'ISO 9001', trustScore: 97, status: 'Pending Verification ⚡', txHash: '0x9043ac74a0bb5288' },
+  { name: 'Deccan Fiber Corp', location: 'Telangana', rating: 4.5, otif: 91, certification: 'ISO 9001', trustScore: 92, status: 'Pending Verification ⚡', txHash: '0x32a19b48c0df11e5' },
+  { name: 'Kaveri Spinning Ltd', location: 'Karnataka', rating: 4.2, otif: 88, certification: 'ISO 9001', trustScore: 89, status: 'Pending Verification ⚡', txHash: '0x15f8a02d4e8c9b3a' }
 ];
 
 function initDatabase() {
@@ -40,85 +37,69 @@ function initDatabase() {
       certification TEXT,
       trustScore REAL,
       status TEXT,
+      txHash TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, () => {
-    // Seed database if table is empty
     db.get('SELECT COUNT(*) as count FROM suppliers', (err, row) => {
       if (row && row.count === 0) {
-        console.log('Seeding initial supplier data into SQLite...');
         const stmt = db.prepare(`
-          INSERT INTO suppliers (name, location, rating, otif, certification, trustScore, status)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO suppliers (name, location, rating, otif, certification, trustScore, status, txHash)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `);
         defaultSuppliers.forEach((s) => {
-          stmt.run(s.name, s.location, s.rating, s.otif, s.certification, s.trustScore, s.status);
+          stmt.run(s.name, s.location, s.rating, s.otif, s.certification, s.trustScore, s.status, s.txHash);
         });
         stmt.finalize();
-        console.log('Initial suppliers successfully seeded.');
       }
     });
   });
 }
 
-// Serve main frontend dashboard
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// GET Endpoint: Fetch all suppliers
 app.get('/api/suppliers', (req, res) => {
-  db.all('SELECT * FROM suppliers ORDER BY id DESC', [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  db.all('SELECT * FROM suppliers ORDER BY trustScore DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
 
-// Shared Add Supplier Handler for POST routes
 function addSupplierHandler(req, res) {
   const body = req.body;
-  const name = body.name || body.supplierName || body['Supplier Name'];
-  const location = body.location || body.Location || 'Karnataka';
-  const rating = parseFloat(body.rating || body['Rating (1-5)'] || 4.5);
-  const otif = parseFloat(body.otif || body['OTIF % (0-100)'] || 92);
-  const certification = body.certification || body.cert || body['Cert: ISO 9001 (Quality)'] || 'ISO 9001 (Quality)';
+  const name = body.name || body.supplierName;
+  const location = body.location || 'India';
+  const rating = parseFloat(body.rating || 4.5);
+  const otif = parseFloat(body.otif || 95);
+  const certification = body.certification || 'ISO 9001';
 
-  if (!name) {
-    return res.status(400).json({ error: 'Supplier Name is required' });
-  }
+  if (!name) return res.status(400).json({ error: 'Supplier Name required' });
 
-  const certBonus = (certification.includes('9001') || certification.includes('Quality') || certification.includes('Organic')) ? 20 : 10;
+  const certBonus = (certification.includes('9001') || certification.includes('Quality') || certification.includes('ISO')) ? 20 : 10;
   const trustScore = Math.min(100, Math.round((rating / 5 * 40) + (otif * 0.4) + certBonus));
-  const status = 'Verified';
+  const status = 'Pending Verification ⚡';
+  const txHash = '0x' + Math.random().toString(16).substr(2, 14);
 
   const sql = `
-    INSERT INTO suppliers (name, location, rating, otif, certification, trustScore, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO suppliers (name, location, rating, otif, certification, trustScore, status, txHash)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.run(sql, [name, location, rating, otif, certification, trustScore, status], function(err) {
-    if (err) {
-      console.error('Database insertion error:', err.message);
-      return res.status(500).json({ error: 'Database error' });
-    }
-    const newEntry = { id: this.lastID, name, location, rating, otif, certification, trustScore, status };
-    console.log('Supplier added:', newEntry);
-    res.status(201).json(newEntry);
+  db.run(sql, [name, location, rating, otif, certification, trustScore, status, txHash], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(201).json({ id: this.lastID, name, location, rating, otif, certification, trustScore, status, txHash });
   });
 }
 
 app.post('/api/suppliers', addSupplierHandler);
 app.post('/api/add-supplier', addSupplierHandler);
 
-// Health check endpoint for Render
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+app.delete('/api/suppliers/:id', (req, res) => {
+  db.run('DELETE FROM suppliers WHERE id = ?', [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: 'Deleted successfully' });
+  });
 });
 
-// Dynamic Port and Host Binding required by Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`Server listening on port ${PORT}`));
