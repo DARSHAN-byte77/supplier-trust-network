@@ -1,7 +1,7 @@
 {
   "name": "supplier-trust-network",
   "version": "1.0.0",
-  "description": "",
+  "description": "Cotton Supplier Trust Network - Web3 & Supply Chain Analytics Dashboard",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -14,7 +14,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "sqlite": "^5.1.1",
-    "sqlite3": "^6.0.1"
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "prettier": "^3.9.9"

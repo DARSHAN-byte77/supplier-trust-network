@@ -5,10 +5,12 @@ const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 
+// Middleware for parsing JSON & form data, serving static frontend files
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
+// SQLite Database Connection
 const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -41,7 +43,7 @@ function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `, () => {
-    // Check if table is empty
+    // Seed database if table is empty
     db.get('SELECT COUNT(*) as count FROM suppliers', (err, row) => {
       if (row && row.count === 0) {
         console.log('Seeding initial supplier data into SQLite...');
@@ -49,7 +51,6 @@ function initDatabase() {
           INSERT INTO suppliers (name, location, rating, otif, certification, trustScore, status)
           VALUES (?, ?, ?, ?, ?, ?, ?)
         `);
-        
         defaultSuppliers.forEach((s) => {
           stmt.run(s.name, s.location, s.rating, s.otif, s.certification, s.trustScore, s.status);
         });
@@ -60,11 +61,12 @@ function initDatabase() {
   });
 }
 
+// Serve main frontend dashboard
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// GET Endpoint: Return suppliers list
+// GET Endpoint: Fetch all suppliers
 app.get('/api/suppliers', (req, res) => {
   db.all('SELECT * FROM suppliers ORDER BY id DESC', [], (err, rows) => {
     if (err) {
@@ -74,7 +76,7 @@ app.get('/api/suppliers', (req, res) => {
   });
 });
 
-// Shared Add Supplier Handler
+// Shared Add Supplier Handler for POST routes
 function addSupplierHandler(req, res) {
   const body = req.body;
   const name = body.name || body.supplierName || body['Supplier Name'];
@@ -98,7 +100,7 @@ function addSupplierHandler(req, res) {
 
   db.run(sql, [name, location, rating, otif, certification, trustScore, status], function(err) {
     if (err) {
-      console.error('Database insert error:', err.message);
+      console.error('Database insertion error:', err.message);
       return res.status(500).json({ error: 'Database error' });
     }
     const newEntry = { id: this.lastID, name, location, rating, otif, certification, trustScore, status };
@@ -110,10 +112,12 @@ function addSupplierHandler(req, res) {
 app.post('/api/suppliers', addSupplierHandler);
 app.post('/api/add-supplier', addSupplierHandler);
 
+// Health check endpoint for Render
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+// Dynamic Port and Host Binding required by Render
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server listening on port ${PORT}`);

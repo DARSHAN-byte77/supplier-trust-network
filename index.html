@@ -1,178 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Supplier Trust Network - Advanced Trust Engine & Web3</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background-color: #030712; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; position: relative; }
-    
-    #orbit-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
-
-    .header-bar { position: relative; z-index: 10; width: 92%; max-width: 850px; display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 20px; }
-    .hero-title { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; color: #ffffff; text-transform: uppercase; text-shadow: 0 0 20px rgba(56, 189, 248, 0.6); }
-
-    .btn-web3 { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
-    .btn-web3:hover { transform: translateY(-1px); opacity: 0.9; }
-
-    .container { position: relative; z-index: 10; width: 92%; max-width: 850px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); padding: 28px; border-radius: 16px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); margin-bottom: 50px; }
-
-    .blockchain-status { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); padding: 10px 14px; border-radius: 8px; margin-bottom: 20px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; }
-    .chain-pill { background: rgba(34, 197, 94, 0.2); color: #4ade80; padding: 2px 8px; border-radius: 12px; font-weight: 700; }
-
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-    .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 12px; border-radius: 10px; text-align: center; }
-    .stat-value { font-size: 1.3rem; font-weight: 700; color: #f8fafc; }
-    .stat-label { font-size: 0.65rem; color: #94a3b8; font-weight: 600; margin-top: 2px; }
-
-    .engine-panel { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
-    .engine-title { font-size: 0.9rem; font-weight: 700; color: #38bdf8; margin-bottom: 12px; display: flex; justify-content: space-between; }
-
-    .form-grid { display: grid; grid-template-columns: 2fr 1.5fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    input, select { padding: 10px 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; border-radius: 8px; font-size: 0.85rem; }
-    input:focus, select:focus { outline: none; border-color: #38bdf8; }
-    
-    .btn-primary { background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
-    .btn-primary:hover { background: #0369a1; }
-
-    .controls { display: flex; gap: 8px; margin-bottom: 16px; }
-    
-    .supplier-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); padding: 16px; border-radius: 10px; margin-bottom: 12px; }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .supplier-name { font-size: 1.05rem; font-weight: 700; color: #f8fafc; }
-    .metrics-row { display: flex; gap: 12px; font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; flex-wrap: wrap; }
-    
-    .cert-badge { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 0.7rem; }
-    
-    .card-footer { display: flex; justify-content: space-between; align-items: center; pt: 8px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
-    .trust-pill { background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; font-size: 0.9rem; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.3); }
-    .hash-tag { font-size: 0.65rem; color: #64748b; font-family: monospace; }
-    .badge { cursor: pointer; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; border: none; }
-    .verified { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
-    .unverified { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-    .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
-  </style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cotton Supplier Trust Network</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #0b0f19; color: #e2e8f0; overflow-x: hidden; }
+    #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
+    .ui-container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #1e293b; }
+    h1 { font-size: 1.5rem; letter-spacing: 1px; color: #38bdf8; text-transform: uppercase; }
+    .btn-primary { background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+    .metric-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 15px; backdrop-filter: blur(10px); }
+    .metric-card p { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+    .metric-card h2 { font-size: 1.6rem; margin-top: 5px; color: #38bdf8; }
+    .form-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 25px; backdrop-filter: blur(10px); }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 15px; }
+    input, select { background: #0f172a; border: 1px solid #334155; color: #fff; padding: 10px; border-radius: 6px; width: 100%; }
+    .supplier-list { display: flex; flex-direction: column; gap: 12px; }
+    .supplier-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #1e293b; border-radius: 8px; padding: 15px; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+    .supplier-info h3 { font-size: 1.1rem; color: #f8fafc; }
+    .supplier-info p { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+    .badge { background: #0284c7; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
+    .trust-score { font-size: 1.2rem; font-weight: bold; color: #4ade80; }
+  </style>
 </head>
 <body>
+  <div id="canvas-container"></div>
+  <div class="ui-container">
+    <header>
+      <h1>Supplier Trust Network</h1>
+      <button class="btn-primary">Connect Wallet</button>
+    </header>
 
-  <canvas id="orbit-canvas"></canvas>
-
-  <div class="header-bar">
-    <h1 class="hero-title">Supplier Trust Network</h1>
-    <button class="btn-web3" id="web3-btn" onclick="connectWallet()">Connect Wallet</button>
-  </div>
-
-  <div class="container">
-    <div class="blockchain-status">
-      <span>Ledger Node: <strong id="network-name">Sepolia Testnet</strong></span>
-      <span>Engine Status: <span class="chain-pill" id="web3-status">Time-Decay Active</span></span>
+    <div class="metrics-grid">
+      <div class="metric-card"><p>TOTAL SUPPLIERS</p><h2 id="metric-total">0</h2></div>
+      <div class="metric-card"><p>VERIFIED ON-CHAIN</p><h2 id="metric-verified">0</h2></div>
+      <div class="metric-card"><p>AVG ON-TIME DELIVERY</p><h2 id="metric-otif">0%</h2></div>
+      <div class="metric-card"><p>COMPOSITE TRUST</p><h2 id="metric-trust">0%</h2></div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="stat-total">0</div>
-        <div class="stat-label">TOTAL SUPPLIERS</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-verified">0</div>
-        <div class="stat-label">VERIFIED ON-CHAIN</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-otif">0%</div>
-        <div class="stat-label">AVG ON-TIME DELIVERY</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="stat-avg-trust">0%</div>
-        <div class="stat-label">COMPOSITE TRUST</div>
-      </div>
-    </div>
-
-    <!-- Advanced Dynamic Trust Engine Input Form -->
-    <div class="engine-panel">
-      <div class="engine-title">
-        <span>Dynamic Trust Engine Parameters</span>
-        <span style="font-weight:400; font-size:0.75rem; color:#94a3b8;">Rating (40%) + OTIF Delivery (40%) + Certification (20%)</span>
-      </div>
-      <form id="supplier-form">
+    <div class="form-card">
+      <h3 style="color:#38bdf8; font-size: 1rem;">Dynamic Trust Engine Parameters</h3>
+      <form id="add-supplier-form">
         <div class="form-grid">
-          <input type="text" id="name-input" placeholder="Supplier Name" required />
-          <input type="text" id="location-input" placeholder="Location" required />
-          <input type="number" id="rating-input" placeholder="Rating (1-5)" min="1" max="5" step="0.1" required />
-          <input type="number" id="otif-input" placeholder="OTIF % (0-100)" min="0" max="100" required />
-        </div>
-        <div style="display:flex; gap:8px;">
-          <select id="cert-input" style="flex:1;">
-            <option value="ISO 9001">Cert: ISO 9001 (Quality)</option>
-            <option value="ISO 27001">Cert: ISO 27001 (Security)</option>
-            <option value="ESG Compliant">Cert: ESG Verified</option>
-            <option value="None">Cert: None</option>
+          <input type="text" id="supplierName" placeholder="Supplier Name" required>
+          <input type="text" id="location" placeholder="Location" required>
+          <input type="number" step="0.1" id="rating" placeholder="Rating (1-5)" min="1" max="5" required>
+          <input type="number" id="otif" placeholder="OTIF % (0-100)" min="0" max="100" required>
+          <select id="certification">
+            <option value="ISO 9001 (Quality)">Cert: ISO 9001 (Quality)</option>
+            <option value="GOTS Organic">Cert: GOTS Organic</option>
+            <option value="Fair Trade Certified">Cert: Fair Trade Certified</option>
           </select>
-          <button type="submit" class="btn-primary" style="flex:1;">Record to Trust Engine</button>
+          <button type="submit" class="btn-primary" style="grid-column: span 1;">Record to Trust Engine</button>
         </div>
       </form>
     </div>
 
-    <div class="controls">
-      <input type="text" id="search-input" placeholder="Search suppliers or locations..." oninput="renderSuppliers()" style="flex:2;" />
-      <select id="filter-select" onchange="renderSuppliers()">
-        <option value="all">All Statuses</option>
-        <option value="verified">Verified Only</option>
-        <option value="pending">Pending Only</option>
-      </select>
-      <select id="sort-select" onchange="renderSuppliers()">
-        <option value="trust-desc">Trust Score (High to Low)</option>
-        <option value="trust-asc">Trust Score (Low to High)</option>
-      </select>
-    </div>
-
-    <div id="supplier-list"></div>
+    <div class="supplier-list" id="suppliers-container"></div>
   </div>
 
   <script>
-    // --- 3D WebGL Canvas Visualizer ---
-    const canvas = document.getElementById('orbit-canvas');
+    // 1. Three.js Background Visualization Setup
+    const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 8);
 
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.set(0, 4, 20);
+    container.appendChild(renderer.domElement);
 
-    const orbitGroup = new THREE.Group();
-    scene.add(orbitGroup);
+    const nodesGroup = new THREE.Group();
+    scene.add(nodesGroup);
 
-    const numPlates = 12;
-    const radius = 9.5;
-    const colors = [0x38bdf8, 0x4ade80, 0xc084fc, 0xf59e0b, 0xef4444, 0x06b6d4];
-
-    for (let i = 0; i < numPlates; i++) {
-      const angle = (i / numPlates) * Math.PI * 2;
-      const geometry = new THREE.BoxGeometry(2.2, 1.5, 0.1);
-      const material = new THREE.MeshPhongMaterial({ color: colors[i % colors.length], shininess: 90 });
-      const plate = new THREE.Mesh(geometry, material);
-      plate.position.x = Math.cos(angle) * radius;
-      plate.position.z = Math.sin(angle) * radius;
-      plate.rotation.y = -angle + Math.PI / 2;
-      orbitGroup.add(plate);
+    function createNodeRing(count) {
+      while(nodesGroup.children.length > 0){ nodesGroup.remove(nodesGroup.children[0]); }
+      const radius = 4.5;
+      const geom = new THREE.BoxGeometry(0.6, 0.4, 0.1);
+      for(let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        const mat = new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x38bdf8 : 0x4ade80, wireframe: true });
+        const mesh = new THREE.Mesh(geom, mat);
+        mesh.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+        nodesGroup.add(mesh);
+      }
     }
 
-    const light = new THREE.DirectionalLight(0xffffff, 1.2);
-    light.position.set(10, 20, 15);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-
-    orbitGroup.rotation.x = 0.3;
-    orbitGroup.rotation.z = -0.1;
-
-    function animateOrbit() {
-      requestAnimationFrame(animateOrbit);
-      orbitGroup.rotation.y += 0.0025;
+    function animate() {
+      requestAnimationFrame(animate);
+      nodesGroup.rotation.z += 0.003;
       renderer.render(scene, camera);
     }
-    animateOrbit();
+    animate();
 
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -180,153 +104,71 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // --- Web3 / Ledger Simulation ---
-    let userAccount = null;
+    // 2. Metric Updating Logic
+    function updateDashboardMetrics(suppliers) {
+      if (!suppliers || suppliers.length === 0) return;
+      const total = suppliers.length;
+      const verifiedCount = suppliers.filter(s => s.status === 'Verified' || s.status === 'Active' || !s.status).length;
+      const sumOtif = suppliers.reduce((acc, s) => acc + parseFloat(s.otif || 0), 0);
+      const avgOtif = Math.round(sumOtif / total);
+      const sumTrust = suppliers.reduce((acc, s) => acc + parseFloat(s.trustScore || 0), 0);
+      const avgTrust = Math.round(sumTrust / total);
 
-    function generateTxHash() {
-      return '0x' + Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16)).join('');
+      document.getElementById('metric-total').textContent = total;
+      document.getElementById('metric-verified').textContent = verifiedCount;
+      document.getElementById('metric-otif').textContent = `${avgOtif}%`;
+      document.getElementById('metric-trust').textContent = `${avgTrust}%`;
     }
 
-    async function connectWallet() {
-      if (window.ethereum) {
-        try {
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          userAccount = accounts[0];
-          document.getElementById('web3-btn').innerText = userAccount.substring(0, 6) + '...' + userAccount.substring(38);
-          document.getElementById('web3-status').innerText = 'MetaMask Connected';
-        } catch (e) {
-          alert('Wallet connection cancelled');
-        }
-      } else {
-        userAccount = '0x' + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-        document.getElementById('web3-btn').innerText = userAccount.substring(0, 6) + '... (Simulated)';
-        document.getElementById('web3-status').innerText = 'Web3 Active';
-      }
+    // 3. API Interactivity Logic
+    function fetchSuppliers() {
+      fetch('/api/suppliers')
+        .then(res => res.json())
+        .then(suppliers => {
+          const containerEl = document.getElementById('suppliers-container');
+          containerEl.innerHTML = '';
+          suppliers.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'supplier-card';
+            card.innerHTML = `
+              <div class="supplier-info">
+                <h3>${s.name} <span style="font-size:0.8rem; color:#94a3b8;">(${s.location})</span></h3>
+                <p>Rating: ${s.rating} ★ | OTIF Delivery: ${s.otif}% | Certification: <span class="badge">${s.certification}</span></p>
+              </div>
+              <div class="trust-score">Trust Score: ${s.trustScore}%</div>
+            `;
+            containerEl.appendChild(card);
+          });
+          updateDashboardMetrics(suppliers);
+          createNodeRing(Math.max(suppliers.length, 4));
+        })
+        .catch(err => console.error('Error fetching suppliers:', err));
     }
 
-    // --- Dynamic Trust Calculation Engine ---
-    // Formula: Trust Score = (Rating/5 * 40) + (OTIF % * 0.40) + (Cert Bonus 20)
-    function calculateEngineScore(rating, otif, cert) {
-      const ratingComponent = (parseFloat(rating) / 5) * 40;
-      const otifComponent = (parseFloat(otif) / 100) * 40;
-      const certBonus = (cert && cert !== 'None') ? 20 : 0;
-      return Math.round(ratingComponent + otifComponent + certBonus);
-    }
-
-    let rawSuppliers = [];
-
-    async function loadStats() {
-      const res = await fetch('/api/stats');
-      const stats = await res.json();
-      
-      let totalOtif = 0;
-      rawSuppliers.forEach(s => totalOtif += (s.otif || 90));
-      const avgOtif = rawSuppliers.length ? Math.round(totalOtif / rawSuppliers.length) : 0;
-
-      document.getElementById('stat-total').innerText = stats.total;
-      document.getElementById('stat-verified').innerText = stats.verifiedCount;
-      document.getElementById('stat-otif').innerText = avgOtif + '%';
-      document.getElementById('stat-avg-trust').innerText = stats.avgTrust + '%';
-    }
-
-    async function loadSuppliers() {
-      const res = await fetch('/api/suppliers');
-      rawSuppliers = await res.json();
-      renderSuppliers();
-      loadStats();
-    }
-
-    function renderSuppliers() {
-      const searchTerm = document.getElementById('search-input').value.toLowerCase();
-      const filterValue = document.getElementById('filter-select').value;
-      const sortValue = document.getElementById('sort-select').value;
-
-      let filtered = rawSuppliers.filter(s => {
-        const matchesSearch = s.name.toLowerCase().includes(searchTerm) || s.location.toLowerCase().includes(searchTerm);
-        const matchesFilter = filterValue === 'all' 
-          ? true 
-          : filterValue === 'verified' ? s.verified : !s.verified;
-        return matchesSearch && matchesFilter;
-      });
-
-      filtered.forEach(s => {
-        if (!s.computedTrust) {
-          s.computedTrust = calculateEngineScore(s.rating, s.otif || 92, s.cert || 'ISO 9001');
-        }
-      });
-
-      filtered.sort((a, b) => {
-        if (sortValue === 'trust-desc') return (b.computedTrust || b.trustScore) - (a.computedTrust || a.trustScore);
-        if (sortValue === 'trust-asc') return (a.computedTrust || a.trustScore) - (b.computedTrust || b.trustScore);
-      });
-
-      const supplierList = document.getElementById('supplier-list');
-      supplierList.innerHTML = '';
-
-      filtered.forEach(s => {
-        const txHash = s.txHash || generateTxHash();
-        const displayTrust = s.computedTrust || s.trustScore;
-        const cert = s.cert || 'ISO 9001';
-        const otif = s.otif || 92;
-
-        const div = document.createElement('div');
-        div.className = 'supplier-card';
-        div.innerHTML = `
-          <div class="card-header">
-            <span class="supplier-name">${s.name} <span style="font-size:0.85rem; font-weight:400; color:#94a3b8;">(${s.location})</span></span>
-            <div class="trust-pill">Trust Score: ${displayTrust}%</div>
-          </div>
-          <div class="metrics-row">
-            <span>Rating: <strong>${s.rating} ★</strong></span>
-            <span>OTIF Delivery: <strong>${otif}%</strong></span>
-            <span>Certification: <span class="cert-badge">${cert}</span></span>
-          </div>
-          <div class="card-footer">
-            <div class="hash-tag">Tx Hash: ${txHash}</div>
-            <div style="display:flex; gap:8px; align-items:center;">
-              <button onclick="toggleVerify(${s.id})" class="badge ${s.verified ? 'verified' : 'unverified'}">
-                ${s.verified ? 'Verified ✓' : 'Pending Verification ✗'}
-              </button>
-              <button onclick="deleteSupplier(${s.id})" class="btn-delete">Delete</button>
-            </div>
-          </div>
-        `;
-        supplierList.appendChild(div);
-      });
-    }
-
-    document.getElementById('supplier-form').addEventListener('submit', async (e) => {
+    document.getElementById('add-supplier-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = document.getElementById('name-input').value;
-      const location = document.getElementById('location-input').value;
-      const rating = document.getElementById('rating-input').value;
-      const otif = document.getElementById('otif-input').value;
-      const cert = document.getElementById('cert-input').value;
+      const payload = {
+        name: document.getElementById('supplierName').value,
+        location: document.getElementById('location').value,
+        rating: document.getElementById('rating').value,
+        otif: document.getElementById('otif').value,
+        certification: document.getElementById('certification').value
+      };
 
-      await fetch('/api/suppliers', {
+      fetch('/api/suppliers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, location, rating, otif, cert })
-      });
-
-      document.getElementById('name-input').value = '';
-      document.getElementById('location-input').value = '';
-      document.getElementById('rating-input').value = '';
-      document.getElementById('otif-input').value = '';
-      loadSuppliers();
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById('add-supplier-form').reset();
+        fetchSuppliers();
+      })
+      .catch(err => console.error('Error adding supplier:', err));
     });
 
-    async function toggleVerify(id) {
-      await fetch(`/api/suppliers/${id}/toggle`, { method: 'PATCH' });
-      loadSuppliers();
-    }
-
-    async function deleteSupplier(id) {
-      await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
-      loadSuppliers();
-    }
-
-    loadSuppliers();
+    fetchSuppliers();
   </script>
 </body>
 </html>
